@@ -1,7 +1,9 @@
+import os
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
-DATABASE_URL = "sqlite:///.test.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'test.db')}"
 
 Base = declarative_base()
 
