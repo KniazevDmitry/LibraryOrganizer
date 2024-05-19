@@ -30,19 +30,30 @@ app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
 
+# Create a book
+book_data = {
+    "title": "Blindsight",
+    "author": "Peter Watts",
+    "description": "The novel explores themes of identity, consciousness, free will, artificial intelligence, "
+                   "neurology, and game theory as well as evolution and biology."
+}
+book_response = client.post("/books/", json=book_data)
+created_book = book_response.json()
 
-def test_create_and_get_book():
-    # 1. Create a book
-    book_data = {
-        "title": "Blindsight",
-        "author": "Peter Watts",
-        "description": "The novel explores themes of identity, consciousness, free will, artificial intelligence, "
-                       "neurology, and game theory as well as evolution and biology."
-    }
-    response = client.post("/books/", json=book_data)
-    assert response.status_code == 200
-    created_book = response.json()
+
+def test_book_created():
+    assert book_response.status_code == 200
 
     # Remove the 'id' field for comparison
     created_book_data = {k: v for k, v in created_book.items() if k != 'id'}
+
     assert created_book_data == book_data
+
+
+def test_book_deleted():
+    book_id = created_book["id"]
+    delete_response = client.delete(f"/books/{book_id}")
+    assert delete_response.status_code == 200
+
+    get_deleted_response = client.get(f"/books/{book_id}")
+    assert get_deleted_response.status_code == 404
